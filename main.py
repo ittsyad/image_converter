@@ -1,33 +1,48 @@
 from PIL import Image
-import io,os,subprocess
-class resizer(object):
+import io
+import os
+import subprocess
 
-    def __init__(self,path_to_image,size_x, size_y):
+
+class Resizer(object):
+
+    def __init__(self, path_to_image, size_x, size_y):
         """ Resizes image.
-        ---------------------------
+        ------------------
         Warning! Ratio between X and Y must be at least 1/3.
-        ---------------------------
-        :param: path_to_image: [../library/coolimg.png/gif/jpeg]
-        :param: size_x: Requested height of converted image.
-        :param: size_y: Requested width of converted image.
-        :returns:resized copy of an image w/o saving it.
+        ------------------
+        :param path_to_image: [../library/coolimg.png/gif/jpeg]
+        :param size_x: Requested height of converted image.
+        :param size_y: Requested width of converted image.
+        :returns: resized copy of an image w/o saving it.
         """
 
         self.path_to_image = path_to_image
         self.size_x = size_x
         self.size_y = size_y
-        self.xy = "{}x{}".format(str(self.size_x),str(self.size_y))
-        self.original_img = Image.open(self.path_to_image)
+        self.xy = "{}x{}".format(str(self.size_x), str(self.size_y))
+        try:
+            self.original_img = Image.open(self.path_to_image)
+        except Exception as e:
+            self.original_img = path_to_image
+            try:
+                self.original_img.mode
+            except Exception as e:
+                raise Exception(e)
+        self.method = None
+
     def __format_gif(self):
         """
         Resizing GIF image, using imagemagick.
         :return: An :py:class:`~PIL.Image.Image` object.
         """
-        print(self.original_img)
+
         self.converted = False
         try:
-            self.command = ['convert',self.path_to_image,'-coalesce','-resize',self.xy,'-deconstruct','out-deconstruct1.gif']
-            self.child = subprocess.Popen(self.command, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.command = ['convert', self.path_to_image, '-coalesce', '-resize', self.xy, '-deconstruct',
+                            'out-deconstruct1.gif']
+            self.child = subprocess.Popen(self.command, universal_newlines=True, stdout=subprocess.PIPE,
+                                          stderr=subprocess.PIPE)
             self.output, self.error = self.child.communicate()
             if self.child.returncode != 0:
                 raise Exception()
@@ -58,10 +73,9 @@ class resizer(object):
         self.original_img = self.original_img.convert("RGB")
         self.original_img.thumbnail((self.size_x, self.size_y), Image.LANCZOS)
         with io.BytesIO() as f:
-            self.original_img.save(f, "JPEG", quality=90,background = (0,255,0))
+            self.original_img.save(f, "JPEG", quality=90, background=(0, 255, 0))
         self.original_img.show()
         return self.original_img
-
 
     def __format_resize(self):
         """
@@ -70,22 +84,20 @@ class resizer(object):
         """
         self.original_img = self.original_img.convert("RGB")
         self.original_img = self.original_img.resize((self.size_x, self.size_y), Image.LANCZOS)
-        #self.b = io.BytesIO()
         with io.BytesIO() as f:
-            self.original_img.save(f,"JPEG", quality=90,background = (0,255,0))
+            self.original_img.save(f, "JPEG", quality=90, background=(0, 255, 0))
         return self.original_img
 
-
-    def format(self,method):
+    def format(self, method):
         """
         Depending on your decision, function formats img to size, entered in class declaration.
         :param method: [THUMBNAIL,RESIZE]{lowercase} - resize method.
         :return: An :py:class:`~PIL.Image.Image` object.
         """
         self.method = method
-        if method not in ("thumbnail","resize"):
+        if method not in ("thumbnail", "resize"):
             raise AttributeError("Incorrect method.")
-        if self.original_img.mode in ["GIF","P"]:
+        if self.original_img.mode in ["GIF", "P"]:
             self.original_img = self.original_img.convert("RGBA")
             return self.__format_gif()
         elif method in "thumbnail":
@@ -94,5 +106,5 @@ class resizer(object):
             return self.__format_resize()
 
 
-r = resizer("7VE.gif",500,500)
+r = Resizer("index.jpeg", 500, 500)
 r.format(method="thumbnail")
