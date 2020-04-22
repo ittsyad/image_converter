@@ -3,7 +3,6 @@ from io import BytesIO
 import os
 import subprocess
 from random import randint
-import threading
 class Resizer(object):
 
     def __init__(self, path_to_image, size_x, size_y):
