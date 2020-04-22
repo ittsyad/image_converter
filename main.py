@@ -1,9 +1,9 @@
 from PIL import Image
 from io import BytesIO
+from random import randint
 import os
 import subprocess
-from random import randint
-
+import tempfile
 
 class Resizer(object):
 
@@ -30,6 +30,7 @@ class Resizer(object):
         """
         try:
             img_name = randint(1, 10e10)
+            img_name = "tmp/"+ str(img_name)
             if self.method == "thumbnail":
                 self.magick_method = "-thumbnail"
             else:
@@ -100,5 +101,5 @@ class Resizer(object):
             return self._format_resize()
 
 
-r = Resizer("Monitor-PNG-HD.png", 64, 64)
+r = Resizer("out-deconstruct.gif", 64, 64)
 r.format(method="resize")
