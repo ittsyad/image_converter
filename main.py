@@ -3,6 +3,8 @@ from io import BytesIO
 import os
 import subprocess
 from random import randint
+
+
 class Resizer(object):
 
     def __init__(self, path_to_image, size_x, size_y):
@@ -20,24 +22,23 @@ class Resizer(object):
         self.size_y = size_y
         self.xy = "{}x{}".format(str(self.size_x), str(self.size_y))
         self.original_img = Image.open(self.path_to_image)
+
     def _format_gif(self):
         """
         Resizing GIF image, using imagemagick.
         :return: An :py:class:`~PIL.Image.Image` object.
         """
-
-
         try:
-            img_name = randint(1,10e10)
-            if  self.method == "thumbnail":
+            img_name = randint(1, 10e10)
+            if self.method == "thumbnail":
                 self.magick_method = "-thumbnail"
             else:
                 self.magick_method = "-resize"
             self.command = ['convert',self.path_to_image,'-coalesce',self.magick_method, self.xy +
-                            '!','GIF:{}'.format(str(img_name))]
+                            '!', 'GIF:{}'.format(str(img_name))]
             self.child = subprocess.Popen(self.command, universal_newlines=True, stdout=subprocess.PIPE,
                                           stderr=subprocess.PIPE)
-            self.out,self.err = self.child.communicate()
+            self.out, self.err = self.child.communicate()
             if self.child.returncode != 0:
                 raise Exception()
             self.child.kill()
@@ -99,5 +100,5 @@ class Resizer(object):
             return self._format_resize()
 
 
-r = Resizer("out-deconstruct.gif", 64,64)
-r.format(method="thumbnail")
+r = Resizer("Monitor-PNG-HD.png", 64, 64)
+r.format(method="resize")
