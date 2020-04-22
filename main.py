@@ -43,8 +43,6 @@ class Resizer(object):
                 raise Exception()
             self.child.kill()
             self.original_img = Image.open(str(img_name))
-            print("now")
-            print(str(img_name))
             os.remove(str(img_name))
         except Exception as e:
             print(e)
