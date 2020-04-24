@@ -3,7 +3,6 @@ from io import BytesIO
 from random import randint
 import os
 import subprocess
-import tempfile
 
 class Resizer(object):
 
@@ -53,8 +52,8 @@ class Resizer(object):
     def _format_thumbnail(self):
         """
         Makes this image into a thumbnail.  This method modifies the
-        image to contain a thumbnail version of itself, no larger than
-        the given size.  This method calculates an appropriate thumbnail
+        image to contain a thumbnail version of itself,! no larger than
+        the given size !.  This method calculates an appropriate thumbnail
         size to preserve the aspect of the image, calls the
         :py:meth:`~PIL.Image.Image.draft` method to configure the file reader
         (where applicable), and finally resizes the image.
@@ -101,5 +100,4 @@ class Resizer(object):
             return self._format_resize()
 
 
-r = Resizer("out-deconstruct.gif", 64, 64)
-r.format(method="resize")
+
