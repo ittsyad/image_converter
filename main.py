@@ -4,6 +4,7 @@ from random import randint
 import os
 import subprocess
 
+
 class Resizer(object):
 
     def __init__(self, path_to_image, size_x, size_y):
@@ -21,21 +22,21 @@ class Resizer(object):
         self.size_y = size_y
         self.xy = "{}x{}".format(str(self.size_x), str(self.size_y))
         self.original_img = Image.open(self.path_to_image)
-
-    def _format_gif(self):
+        self.DEBUG = True
+    def _format_gif (self):
         """
         Resizing GIF image, using imagemagick.
         :return: An :py:class:`~PIL.Image.Image` object.
         """
         try:
-            img_name = randint(1, 10e10)
+            img_name = randint(10e7, 10e15)
             img_name = "tmp/"+ str(img_name)
             if self.method == "thumbnail":
                 self.magick_method = "-thumbnail"
             else:
                 self.magick_method = "-resize"
             self.command = ['convert',self.path_to_image,'-coalesce',self.magick_method, self.xy +
-                            '!', 'GIF:{}'.format(str(img_name))]
+                            '!', 'GIF:{}'.format(img_name)]
             self.child = subprocess.Popen(self.command, universal_newlines=True, stdout=subprocess.PIPE,
                                           stderr=subprocess.PIPE)
             self.out, self.err = self.child.communicate()
@@ -43,11 +44,11 @@ class Resizer(object):
                 raise Exception()
             self.child.kill()
             self.original_img = Image.open(str(img_name))
-            os.remove(str(img_name))
+            if self.DEBUG == False:
+                os.remove(str(img_name))
         except Exception as e:
             print(e)
-        else:
-            return self.original_img
+        return self.original_img
 
     def _format_thumbnail(self):
         """
@@ -56,7 +57,7 @@ class Resizer(object):
         the given size !.  This method calculates an appropriate thumbnail
         size to preserve the aspect of the image, calls the
         :py:meth:`~PIL.Image.Image.draft` method to configure the file reader
-        (where applicable), and finally resizes the image.
+        (where applicable), and finally resizing the image.
 
         Note that this function modifies the :py:class:`~PIL.Image.Image`
         object in place.  If you need to use the full resolution image as well,
@@ -65,22 +66,32 @@ class Resizer(object):
 
         :return: An :py:class:`~PIL.Image.Image` object.
         """
+        img_name = "tmp/" + str(randint(10e3,10e7))
         self.original_img = self.original_img.convert("RGB")
         self.original_img.thumbnail((self.size_x, self.size_y), Image.LANCZOS)
-        with BytesIO() as f:
-            self.original_img.save(f, "JPEG", quality=90, background=(0, 255, 0))
-        return self.original_img
+        if self.DEBUG == False:
+            with BytesIO() as f:
+                self.original_img.save(f, "JPEG", quality=90, background=(0, 255, 0))
+                return self.original_img
+        else:
+            self.original_img.save(img_name, "JPEG", quality=90, background=(0, 255, 0))
+            return Image.open(img_name)
 
     def _format_resize(self):
         """
         Returns a resized copy of this image.
         :return: An :py:class:`~PIL.Image.Image` object.
         """
+        img_name = "tmp/" + str(randint(10e3, 10e7))
         self.original_img = self.original_img.convert("RGB")
         self.original_img = self.original_img.resize((self.size_x, self.size_y), Image.LANCZOS)
-        with BytesIO() as f:
-            self.original_img.save(f, "JPEG", quality=90, background=(0, 255, 0))
-        return self.original_img
+        if self.DEBUG == False:
+            with BytesIO() as f:
+                self.original_img.save(f, "JPEG", quality=90, background=(0, 255, 0))
+                return self.original_img
+        else:
+            self.original_img.save(img_name, "JPEG", quality=90, background=(0, 255, 0))
+            return Image.open(img_name)
 
     def format(self, method):
         """
