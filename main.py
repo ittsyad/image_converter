@@ -29,13 +29,12 @@ class Resizer(object):
         :return: An :py:class:`~PIL.Image.Image` object.
         """
         try:
-            img_name = randint(10e7, 10e15)
-            img_name = "tmp/"+ str(img_name)
+            img_name = "tmp/" + self.path_to_image[4:]
             if self.method == "thumbnail":
                 self.magick_method = "-thumbnail"
             else:
                 self.magick_method = "-resize"
-            self.command = ['convert',self.path_to_image,'-coalesce',self.magick_method, self.xy +
+            self.command = ['convert', self.path_to_image, '-coalesce', self.magick_method, self.xy +
                             '!', 'GIF:{}'.format(img_name)]
             self.child = subprocess.Popen(self.command, universal_newlines=True, stdout=subprocess.PIPE,
                                           stderr=subprocess.PIPE)
@@ -44,7 +43,7 @@ class Resizer(object):
                 raise Exception()
             self.child.kill()
             self.original_img = Image.open(str(img_name))
-            if self.DEBUG == False:
+            if self.DEBUG is False:
                 os.remove(str(img_name))
         except Exception as e:
             print(e)
@@ -66,32 +65,30 @@ class Resizer(object):
 
         :return: An :py:class:`~PIL.Image.Image` object.
         """
-        img_name = "tmp/" + str(randint(10e3,10e7))
-        self.original_img = self.original_img.convert("RGB")
         self.original_img.thumbnail((self.size_x, self.size_y), Image.LANCZOS)
-        if self.DEBUG == False:
+        if self.DEBUG is False:
             with BytesIO() as f:
-                self.original_img.save(f, "JPEG", quality=90, background=(0, 255, 0))
+                self.original_img.save(f, self.original_img.format, quality=90, background=(0, 255, 0))
                 return self.original_img
         else:
-            self.original_img.save(img_name, "JPEG", quality=90, background=(0, 255, 0))
-            return Image.open(img_name)
+            self.original_img.save("tmp/" + self.path_to_image[4:], self.original_img.format, quality=90, background=(
+                0, 255, 0))
+            return Image.open("tmp/" + self.path_to_image[4:])
 
     def _format_resize(self):
         """
         Returns a resized copy of this image.
         :return: An :py:class:`~PIL.Image.Image` object.
         """
-        img_name = "tmp/" + str(randint(10e3, 10e7))
-        self.original_img = self.original_img.convert("RGB")
         self.original_img = self.original_img.resize((self.size_x, self.size_y), Image.LANCZOS)
-        if self.DEBUG == False:
+        if self.DEBUG is False:
             with BytesIO() as f:
-                self.original_img.save(f, "JPEG", quality=90, background=(0, 255, 0))
+                self.original_img.save(f, self.original_img.format, quality=90, background=(0, 255, 0))
                 return self.original_img
         else:
-            self.original_img.save(img_name, "JPEG", quality=90, background=(0, 255, 0))
-            return Image.open(img_name)
+            self.original_img.save("tmp/"+self.path_to_image[4:], self.original_img.format, quality=90, background=(
+                0, 255, 0))
+            return Image.open("tmp/"+self.path_to_image[4:])
 
     def format(self, method):
         """
@@ -109,6 +106,3 @@ class Resizer(object):
             return self._format_thumbnail()
         elif method in "resize":
             return self._format_resize()
-
-
-
